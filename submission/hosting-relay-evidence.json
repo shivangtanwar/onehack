@@ -1,0 +1,30 @@
+{
+  "verifiedAt": "2026-09-13",
+  "description": "Automatic delivery by the deployed server worker; source lock followed by Base Sepolia issuance and Sepolia pledge acknowledgement.",
+  "events": [
+    {
+      "event": "submitted",
+      "source": "sepolia",
+      "sourceTx": "0x066cd08ad5887d5e38996bef50ac8b7a81e7bc668d208142eb1090fd55ffbc25",
+      "destination": "baseSepolia",
+      "destinationTx": "0xbf65124a56bb674cf829c66024632dceaec1e4744446cb9b6704604a7534a131",
+      "nonce": "2"
+    },
+    {
+      "event": "delivered",
+      "destinationTx": "0xbf65124a56bb674cf829c66024632dceaec1e4744446cb9b6704604a7534a131"
+    },
+    {
+      "event": "submitted",
+      "source": "baseSepolia",
+      "sourceTx": "0xbf65124a56bb674cf829c66024632dceaec1e4744446cb9b6704604a7534a131",
+      "destination": "sepolia",
+      "destinationTx": "0x6f70fe74bf11ab750b2530b91f3c1311b798cf6ebde0ee3b9648a3488d5b103d",
+      "nonce": "3"
+    },
+    {
+      "event": "delivered",
+      "destinationTx": "0x6f70fe74bf11ab750b2530b91f3c1311b798cf6ebde0ee3b9648a3488d5b103d"
+    }
+  ]
+}
