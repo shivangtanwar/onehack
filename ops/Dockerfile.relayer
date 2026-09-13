@@ -4,5 +4,6 @@ COPY ops/relayer/package.json ops/relayer/package-lock.json ./
 RUN npm ci --ignore-scripts && npm cache clean --force
 COPY scripts/relay-worker.ts scripts/relay-worker.ts
 COPY --chmod=444 deployments/sepolia.json deployments/baseSepolia.json deployments/
+RUN chmod 755 deployments && chmod 444 deployments/*.json
 USER node
 CMD ["./node_modules/.bin/tsx", "scripts/relay-worker.ts"]

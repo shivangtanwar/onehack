@@ -48,3 +48,6 @@ submission/private/
 frontend/test-results/
 frontend/playwright-report/
 frontend/qa/
+
+# Artifact rendering intermediates
+tmp/
