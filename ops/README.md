@@ -12,7 +12,7 @@ On subsequent releases, the existing Certbot-managed virtual host is preserved. 
 
 ## Background relay
 
-The worker watches only the two applications in `deployments/sepolia.json` and `deployments/baseSepolia.json`. It checks RPC chain IDs, messenger signer and domain, source receipt/block hash, destination, expiry, and exact ordered nonces. It waits for at least 12 source confirmations before signing and relaying. These are confirmation-based finality assumptions, not a consensus light client.
+The worker watches only the two applications in `deployments/sepolia.json` and `deployments/baseSepolia.json`. It checks RPC chain IDs, messenger signer and domain, source receipt/block hash, destination, expiry, and exact ordered nonces. It waits for at least 12 source confirmations before signing and relaying. Initial scans use the same verified starting blocks as the dashboard, because public RPCs may omit older deployment receipts. Pool events for other vault routes are ignored; their nonces are independent. These are confirmation-based finality assumptions, not a consensus light client.
 
 Provision only the disposable testnet attestor key in `runtime/attestor` (mode 600). Keep the deployer key off the server. Create `runtime/state` owned by the service user, then:
 
@@ -32,3 +32,7 @@ The 180-second loan term is deliberate for the demo. Loan creation normally take
 ## Verification
 
 Check HTTP redirects to HTTPS, `/healthz` returns 200, `/` and `/#borrow` load, hashed assets are cached, and browser network reads succeed. `/healthz` covers web serving only; Docker health covers the relay. Never put signing keys into `VITE_*` variables or frontend/public.
+
+## Hosted verification (13 September 2026)
+
+The deployed worker delivered source lock `0x066cd08ad5887d5e38996bef50ac8b7a81e7bc668d208142eb1090fd55ffbc25` to Base Sepolia in `0xbf65124a56bb674cf829c66024632dceaec1e4744446cb9b6704604a7534a131`, then relayed the pledge acknowledgement to Sepolia in `0x6f70fe74bf11ab750b2530b91f3c1311b798cf6ebde0ee3b9648a3488d5b103d`. See `submission/hosting-relay-evidence.json`. Both directions became healthy.

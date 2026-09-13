@@ -92,13 +92,15 @@ async function relay(source: Side, destination: Side) {
     (await source.provider.getBlockNumber()) - finality[source.name as keyof typeof finality] + 1;
   const cursorFile = path.join(stateDir, `${source.name}.json`);
   let from: number;
-  if (fs.existsSync(cursorFile)) from = JSON.parse(fs.readFileSync(cursorFile, "utf8")).nextBlock;
-  else {
-    const receipt = await source.provider.getTransactionReceipt(
-      (source.data.contracts.vault || source.data.contracts.pool).transactionHash
-    );
-    if (!receipt || receipt.status !== 1) throw new Error("Missing deployment receipt");
-    from = receipt.blockNumber;
+  if (fs.existsSync(cursorFile)) {
+    const cursor = JSON.parse(fs.readFileSync(cursorFile, "utf8"));
+    if (cursor.chainId !== source.data.chainId || cursor.application !== source.app)
+      throw new Error("Relay cursor belongs to another deployment");
+    from = cursor.nextBlock;
+  } else {
+    // Verified application scan boundaries, also used by the dashboard. Some public
+    // RPCs do not retain old deployment receipts; delivery still verifies each source receipt.
+    from = source.name === "sepolia" ? 11678451 : 46658404;
   }
   if (!Number.isSafeInteger(from) || from < 0 || from > safeHead + 1)
     throw new Error("Invalid relay cursor; operator review required");
@@ -116,7 +118,7 @@ async function relay(source: Side, destination: Side) {
         BigInt(e.destinationChainId) !== BigInt(destination.data.chainId) ||
         e.destinationReceiver.toLowerCase() !== destination.app.toLowerCase()
       )
-        throw new Error("Unexpected event destination");
+        continue; // The pool supports other vault routes, with independent peer nonces.
       const received = BigInt(
         await destination.messenger.latestNonce(source.data.chainId, source.app)
       );
