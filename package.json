@@ -38,7 +38,7 @@
     "hardhat": "^2.22.18",
     "prettier": "^3.4.2",
     "prettier-plugin-solidity": "^1.4.1",
-    "solhint": "^5.0.5",
+    "solhint": "^6.2.4",
     "solidity-coverage": "^0.8.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
