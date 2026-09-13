@@ -72,7 +72,7 @@ export function Overview({
             </p>
             <button
               className="button mint"
-              onClick={() => (nextDue ? onSelect(nextDue.id) : onBorrow)}
+              onClick={() => (nextDue ? onSelect(nextDue.id) : onBorrow())}
             >
               {nextDue
                 ? "Review next repayment"

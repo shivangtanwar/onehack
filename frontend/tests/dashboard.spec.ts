@@ -349,16 +349,86 @@ async function openNav(page: Page, label: string) {
     .getByRole("button", { name: label, exact: true })
     .click();
 }
-test("public workspace is explicit and closed loans show no outstanding debt", async ({ page }) => {
+test("disconnected personal pages prompt for a wallet and keep the demo separate", async ({
+  page
+}) => {
   await setup(page);
-  await expect(page.getByText("You’re exploring the public workspace.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "View Public demo loan" })).toBeVisible();
   await expect(
-    page.locator(".stat-card").filter({ hasText: "Outstanding balance" }).locator("strong")
-  ).toHaveText("0 dUSD");
-  await page.getByRole("button", { name: "View Public demo loan" }).click();
-  await expect(page.getByRole("dialog")).toContainText("transferred to the recovery treasury");
-  await expect(page.getByRole("dialog").getByText("Repay loan", { exact: true })).toHaveCount(0);
+    page.getByRole("heading", { name: "Connect your wallet to view your loans" })
+  ).toBeVisible();
+  await expect(page.locator(".stat-card")).toHaveCount(0);
+  for (const label of ["My loans", "Activity & history"]) {
+    await openNav(page, label);
+    await expect(page.locator(".loan-table tbody tr")).toHaveCount(0);
+    await expect(page.locator(".transaction-row")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Track a loan", exact: true })).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: /Connect your wallet to view your/ })
+    ).toBeVisible();
+  }
+  await page.getByRole("button", { name: "Explore public demo", exact: true }).click();
+  await expect(page).toHaveURL(/#demo$/);
+  await expect(page.getByRole("heading", { name: "Public demo loan", exact: true })).toBeVisible();
+  await expect(page.getByText("Read-only example", { exact: true })).toBeVisible();
+  await expect(page.getByText(/separate from your wallet’s loans and balances/)).toBeVisible();
+  await expect(page.getByRole("link", { name: /Collateral locked/ })).toHaveAttribute(
+    "href",
+    publicDemo.transactions.lock.url
+  );
+  await expect(page.getByRole("button", { name: /Repay|Save name|Track a loan/ })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Public demo loan", exact: true })).toBeVisible();
+  await openNav(page, "My loans");
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Connect your wallet to view your loans" })
+  ).toBeVisible();
+  await expect(page.getByText("Public demo loan", { exact: true })).toHaveCount(0);
+});
+test("disconnecting removes personal rows and activity immediately", async ({ page }) => {
+  await setup(page, { connected: true });
+  await expect(page.locator(".loan-table tbody tr")).toHaveCount(4);
+  await openNav(page, "My loans");
+  await page.evaluate(() => (window as any).switchTestAccount(""));
+  await expect(
+    page.getByRole("heading", { name: "Connect your wallet to view your loans" })
+  ).toBeVisible();
+  await expect(page.locator(".loan-table tbody tr")).toHaveCount(0);
+  await openNav(page, "Overview");
+  await expect(page.locator(".stat-card")).toHaveCount(0);
+  await openNav(page, "Activity & history");
+  await expect(
+    page.getByRole("heading", { name: "Connect your wallet to view your activity" })
+  ).toBeVisible();
+});
+test("old anonymous watchlists never appear in a connected wallet", async ({ page }) => {
+  await page.addInitScript(
+    ({ id }) => {
+      localStorage.setItem("databaes.collateralId", id);
+      localStorage.setItem(
+        "databaes.loans.v2:11155111:0xd5b4a096de2d668db01eab08d76c11a563b38bf3:84532:0x3d38c71541ed82c313ebebfdab20a0cdebb76770:watchlist",
+        JSON.stringify([{ id, name: "Old anonymous loan" }])
+      );
+    },
+    { id: publicDemo.collateralId }
+  );
+  await setup(page, {
+    emptyEvents: true,
+    states: [
+      [1, 0],
+      [1, 0],
+      [1, 0],
+      [1, 0]
+    ]
+  });
+  await openNav(page, "My loans");
+  await page.getByRole("main").getByRole("button", { name: "Connect wallet", exact: true }).click();
+  await expect(page.getByText("Room for your next move")).toBeVisible();
+  await expect(page.locator(".loan-table tbody tr")).toHaveCount(0);
+  await openNav(page, "Public demo");
+  await expect(page.getByRole("heading", { name: "Public demo loan", exact: true })).toBeVisible();
+  await openNav(page, "My loans");
+  await expect(page.locator(".loan-table tbody tr")).toHaveCount(0);
 });
 test("wallet loans are discovered; return pending is not counted as completed", async ({
   page
@@ -427,14 +497,14 @@ test("approved collateral proceeds to a separate lock confirmation", async ({ pa
 test("tracking validates IDs, renaming persists, and Escape closes a focused dialog", async ({
   page
 }) => {
-  await setup(page);
-  await expect(page.getByRole("button", { name: "View Public demo loan" })).toBeVisible();
+  await setup(page, { connected: true, emptyEvents: true });
+  await expect(page.locator(".loan-table tbody tr")).toHaveCount(3);
   await openNav(page, "My loans");
   await page.getByRole("button", { name: "Track a loan", exact: true }).click();
   await page.getByLabel("Collateral ID", { exact: true }).fill("0x123");
   await page.getByRole("button", { name: "Add to my loans" }).click();
   await expect(page.getByRole("alert")).toContainText("Enter a valid collateral ID");
-  await page.getByLabel("Collateral ID", { exact: true }).fill(ids[1]);
+  await page.getByLabel("Collateral ID", { exact: true }).fill(ids[3]);
   await page.getByLabel("Loan name Optional", { exact: true }).fill("Tracked expenses");
   await page.getByRole("button", { name: "Add to my loans" }).click();
   await expect(
@@ -496,19 +566,25 @@ test("repayment has a review and pending collateral stays in the vault", async (
   ).toBeVisible();
 });
 test("unavailable networks never show a fabricated zero balance", async ({ page }) => {
-  await setup(page, { failRpc: true });
+  await setup(page, { failRpc: true, connected: true });
   await expect(page.getByText("Updates are paused.")).toBeVisible({ timeout: 25000 });
   await expect(
     page.locator(".stat-card").filter({ hasText: "Collateral locked" }).locator("strong")
   ).toHaveText("— dCOL");
   await page.getByRole("button", { name: "New loan", exact: true }).last().click();
-  await expect(page.getByRole("button", { name: "Connect wallet to continue" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Review loan", exact: true })).toBeDisabled();
 });
 test("mobile navigation, pages, and dialogs fit without horizontal overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await setup(page, { connected: true });
   await expect(page.locator(".loan-table tbody tr")).toHaveCount(4);
-  for (const label of ["My loans", "Activity & history", "Safety & contracts", "Overview"]) {
+  for (const label of [
+    "My loans",
+    "Activity & history",
+    "Safety & contracts",
+    "Public demo",
+    "Overview"
+  ]) {
     await openNav(page, label);
     await expect(page.locator(".sidebar")).not.toHaveClass(/is-open/);
     expect(

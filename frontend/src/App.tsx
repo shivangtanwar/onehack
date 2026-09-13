@@ -10,15 +10,22 @@ import { LoanLibrary } from "./components/LoanLibrary";
 import { History } from "./components/History";
 import { TrackDialog } from "./components/TrackDialog";
 import { LoanDetail } from "./components/LoanDetail";
+import { ConnectWorkspace } from "./components/ConnectWorkspace";
+import { PublicDemo } from "./components/PublicDemo";
 
-type View = "overview" | "loans" | "history" | "borrow" | "safety";
+type View = "overview" | "loans" | "history" | "borrow" | "safety" | "demo";
 const navigation: { id: View; label: string; icon: IconName }[] = [
   { id: "overview", label: "Overview", icon: "grid" },
   { id: "loans", label: "My loans", icon: "loans" },
   { id: "history", label: "Activity & history", icon: "history" },
-  { id: "safety", label: "Safety & contracts", icon: "shield" }
+  { id: "safety", label: "Safety & contracts", icon: "shield" },
+  { id: "demo", label: "Public demo", icon: "globe" }
 ];
 const headings: Record<View, [string, string]> = {
+  demo: [
+    "Explore a public demo.",
+    "Follow a recorded testnet loan from its first lock to collateral recovery."
+  ],
   overview: [
     "A little clarity. A lot more control.",
     "Your loans, collateral, and next steps. All in one place."
@@ -36,7 +43,7 @@ const headings: Record<View, [string, string]> = {
 };
 function initialView(): View {
   const hash = window.location.hash.slice(1);
-  return ["overview", "loans", "history", "borrow", "safety"].includes(hash)
+  return ["overview", "loans", "history", "borrow", "safety", "demo"].includes(hash)
     ? (hash as View)
     : "overview";
 }
@@ -64,7 +71,8 @@ export default function App() {
   const selected = lending.positions.find((p) => p.id === selectedId);
   const attention = lending.positions.filter(
     (p) =>
-      (!lending.account || p.owner.toLowerCase() === lending.account.toLowerCase()) &&
+      lending.account &&
+      p.owner.toLowerCase() === lending.account.toLowerCase() &&
       status(p).group === "attention"
   );
   function navigate(next: View) {
@@ -80,6 +88,7 @@ export default function App() {
   }, []);
   useEffect(() => {
     setSelectedId("");
+    setTrackOpen(false);
     setWalletOpen(false);
   }, [lending.account]);
   useEffect(() => {
@@ -191,12 +200,22 @@ export default function App() {
               <div className="eyebrow">
                 {view === "overview"
                   ? "THE BIG PICTURE"
-                  : view === "borrow"
-                    ? "A SIMPLE START"
-                    : "YOUR WORKSPACE"}
+                  : view === "demo"
+                    ? "PUBLIC EXAMPLE"
+                    : view === "borrow"
+                      ? "A SIMPLE START"
+                      : "YOUR WORKSPACE"}
               </div>
-              <h1>{headings[view][0]}</h1>
-              <p>{headings[view][1]}</p>
+              <h1>
+                {view === "overview" && !lending.account
+                  ? "Explore cross-chain lending."
+                  : headings[view][0]}
+              </h1>
+              <p>
+                {view === "overview" && !lending.account
+                  ? "Learn how collateral stays on one network while credit arrives on another."
+                  : headings[view][1]}
+              </p>
             </div>
             {view !== "borrow" && (
               <button className="button primary" onClick={() => navigate("borrow")}>
@@ -204,19 +223,19 @@ export default function App() {
               </button>
             )}
           </div>
-          {!lending.account && (
+          {!lending.account && (view === "borrow" || view === "safety") && (
             <div className="context-banner">
               <Icon name="globe" />
               <span>
-                <strong>You’re exploring the public workspace.</strong> Connect your wallet to see
-                your own balances and loans.
+                <strong>Your wallet is not connected.</strong> Connect your wallet to see your own
+                balances and loans.
               </span>
               <button disabled={Boolean(lending.pending)} onClick={() => void lending.connect()}>
                 Connect wallet <Icon name="arrow" />
               </button>
             </div>
           )}
-          {lending.error && (
+          {lending.error && view !== "demo" && (lending.account || view === "borrow") && (
             <div className="notice-banner error-banner" role="alert">
               <Icon name="alert" />
               <span>
@@ -229,14 +248,17 @@ export default function App() {
               <button onClick={lending.refresh}>Retry</button>
             </div>
           )}
-          {lending.discoveryError && (
+          {lending.discoveryError && view !== "demo" && lending.account && (
             <div className="notice-banner" role="alert">
               <Icon name="alert" />
               <span>{lending.discoveryError}</span>
               <button onClick={lending.refresh}>Retry</button>
             </div>
           )}
-          {view === "overview" && (
+          {view === "overview" && !lending.account && (
+            <ConnectWorkspace lending={lending} onDemo={() => navigate("demo")} />
+          )}
+          {view === "overview" && lending.account && (
             <Overview
               lending={lending}
               onBorrow={() => navigate("borrow")}
@@ -249,7 +271,10 @@ export default function App() {
               onHelp={() => setHelpOpen(true)}
             />
           )}
-          {view === "loans" && (
+          {view === "loans" && !lending.account && (
+            <ConnectWorkspace lending={lending} onDemo={() => navigate("demo")} />
+          )}
+          {view === "loans" && lending.account && (
             <LoanLibrary
               lending={lending}
               onSelect={setSelectedId}
@@ -269,32 +294,42 @@ export default function App() {
               onCancel={() => navigate("overview")}
             />
           )}
-          {view === "history" && <History lending={lending} onSelect={setSelectedId} />}
+          {view === "history" && !lending.account && (
+            <ConnectWorkspace lending={lending} history onDemo={() => navigate("demo")} />
+          )}
+          {view === "history" && lending.account && (
+            <History lending={lending} onSelect={setSelectedId} />
+          )}
+          {view === "demo" && <PublicDemo />}
           {view === "safety" && <Safety onCopy={lending.copy} />}
           <footer className="site-footer">
             <span>
               Thoughtfully connected. <strong>Databaes</strong>
             </span>
-            <div>
-              <span className={`status-dot ${lending.error ? "amber" : ""}`} />
-              <span>
-                {lending.error
-                  ? "Updates paused"
-                  : lending.refreshing
-                    ? "Updating your workspace…"
-                    : lending.lastUpdated
-                      ? `Updated ${lending.lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-                      : "Connecting to networks…"}
-              </span>
-              <button
-                className="icon-button"
-                aria-label="Refresh workspace"
-                disabled={lending.refreshing}
-                onClick={lending.refresh}
-              >
-                <Icon name="refresh" className={lending.refreshing ? "spinning" : ""} />
-              </button>
-            </div>
+            {view === "demo" ? (
+              <span>Recorded September 11, 2026</span>
+            ) : (
+              <div>
+                <span className={`status-dot ${lending.error ? "amber" : ""}`} />
+                <span>
+                  {lending.error
+                    ? "Updates paused"
+                    : lending.refreshing
+                      ? "Updating your workspace…"
+                      : lending.lastUpdated
+                        ? `Updated ${lending.lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                        : "Connecting to networks…"}
+                </span>
+                <button
+                  className="icon-button"
+                  aria-label="Refresh workspace"
+                  disabled={lending.refreshing}
+                  onClick={lending.refresh}
+                >
+                  <Icon name="refresh" className={lending.refreshing ? "spinning" : ""} />
+                </button>
+              </div>
+            )}
           </footer>
         </main>
       </div>

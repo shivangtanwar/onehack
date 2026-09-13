@@ -8,7 +8,7 @@ Built by **Databaes** (Shivang Tanwar, Chahat Singh, Aniket Mishra, and Punya Ma
 
 **Submission materials:** [submission/SUBMISSION.md](submission/SUBMISSION.md). **Hosting and relay operations:** [ops/README.md](ops/README.md).
 
-**Verified on 2026-09-13:** 21 contract tests and 20 browser/wallet tests pass; Solidity lint, TypeScript checks, and the production build pass. The loan page offers separate buttons to add and select Ethereum Sepolia and Base Sepolia. Mainnet IDs are rejected.
+**Verified on 2026-09-13:** 21 contract tests and 22 browser/wallet tests pass; Solidity lint, TypeScript checks, and the production build pass. The loan page offers separate buttons to add and select Ethereum Sepolia and Base Sepolia. Mainnet IDs are rejected.
 
 **Team onboarding:** start with the zero-Web3-prerequisite Part I of [TEAM_ARCHITECTURE_GUIDE.md](./TEAM_ARCHITECTURE_GUIDE.md), then use Part II only when contract-level detail is needed.
 
@@ -221,7 +221,7 @@ Relay one finalized event with `npm run relayer`; required variables are documen
 
 Ethereum Sepolia Chain A and Base Sepolia Chain B are deployed, mutually configured, and proven through a complete public loan/default/recovery lifecycle with 12 source confirmations. See [DEPLOYMENTS.md](./DEPLOYMENTS.md) and `deployments/public-demo.json` for explorer-linked evidence.
 
-The production frontend defaults to these public contracts and preloads the completed public collateral ID. `frontend/public/public-security-evidence.json` contains the exact signed envelope for each recorded replay, double-pledge, and stale-proof transaction. To deliberately execute another testnet lifecycle and overwrite evidence:
+The production frontend defaults to these public contracts. Disconnected personal pages prompt for a wallet; the completed example is shown separately in the read-only Public demo view at `/#demo`. `frontend/public/public-security-evidence.json` contains the exact signed envelope for each recorded replay, double-pledge, and stale-proof transaction. To deliberately execute another testnet lifecycle and overwrite evidence:
 
 ```bash
 PUBLIC_DEMO_ALLOW_REPEAT=true npm run demo:public
@@ -266,3 +266,7 @@ This is hackathon/testnet software and is not audited. Do not deposit assets wit
 ## License
 
 MIT (hackathon prototype).
+
+### Wallet workspace and public demo
+
+Overview, My loans, and Activity & history show a connection prompt while disconnected. The Public demo view displays a dated, read-only example with explorer links. Demo and legacy anonymous watchlist records do not populate wallet balances, counts, or activity. Connecting restores only the connected wallet’s saved records and on-chain discovery; disconnecting clears the personal view.

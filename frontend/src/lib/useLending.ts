@@ -2,14 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BrowserProvider, Contract, ethers } from "ethers";
 import { chainA, chainB, type ChainConfig } from "../config";
 import { erc20Abi, poolAbi, vaultAbi } from "../contracts";
-import { publicDemo } from "../demo";
 import { selectNetwork } from "./walletNetworks";
 import {
   deploymentKey,
   emptyBalances,
   findIssuedLoans,
   friendlyError,
-  isPublicDemo,
   readBalances,
   readPosition,
   scanEvents,
@@ -103,22 +101,16 @@ export function useLending() {
     setHistoryLoading(false);
     setHistoryError("");
     setDiscoveryError("");
+    // Disconnected watchlists and demo records never populate a wallet portfolio.
+    // Keep older browser storage intact, but only restore records scoped to a wallet.
+    if (!account) {
+      setSaved([]);
+      return;
+    }
     const records = storageRead<SavedLoan[]>(`databaes.loans.v2:${scope}`, []);
     const valid = Array.isArray(records)
       ? records.filter((x) => x && ethers.isHexString(x.id, 32) && typeof x.name === "string")
       : [];
-    if (!account && isPublicDemo && !valid.length)
-      valid.push({ id: publicDemo.collateralId, name: "Public demo loan" });
-    const legacy =
-      import.meta.env.VITE_COLLATERAL_ID ||
-      (isPublicDemo ? localStorage.getItem("databaes.collateralId") : "");
-    if (
-      !account &&
-      legacy &&
-      ethers.isHexString(legacy, 32) &&
-      !valid.some((x) => x.id.toLowerCase() === legacy.toLowerCase())
-    )
-      valid.push({ id: legacy, name: "Saved loan" });
     setSaved(valid);
   }, [scope, account]);
   const saveLoans = useCallback(
@@ -209,6 +201,7 @@ export function useLending() {
   }, [account, walletReady, scope, revision]);
   const refresh = useCallback(() => setRevision((n) => n + 1), []);
   const loadHistory = useCallback(async () => {
+    if (!account) return;
     const requestScope = scope;
     setHistoryLoading(true);
     setHistoryError("");
@@ -225,7 +218,7 @@ export function useLending() {
       setHistoryError(
         "Some activity couldn’t be loaded. The list may be incomplete; try refreshing."
       );
-  }, [scope, saved]);
+  }, [account, scope, saved]);
   async function connect() {
     if (!window.ethereum) {
       notify(
@@ -413,6 +406,7 @@ export function useLending() {
     );
   }
   async function track(id: string, name: string) {
+    if (!account) throw new Error("Connect your wallet before tracking a loan.");
     if (!ethers.isHexString(id.trim(), 32))
       throw new Error("Enter a valid collateral ID: 0x followed by 64 letters and numbers.");
     if (saved.some((p) => p.id.toLowerCase() === id.trim().toLowerCase()))
