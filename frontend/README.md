@@ -13,10 +13,11 @@ The app opens at http://127.0.0.1:5173. Public testnet contracts are configured 
 
 ## Everyday flows
 
-- **Overview:** personal collateral totals, outstanding debt, open and completed loans, wallet balances, and the next repayment. Without a wallet, the public watchlist is explicitly identified.
+- **Overview:** personal collateral totals, outstanding debt, open and completed loans, wallet balances, and the next repayment. Without a wallet, personal pages show a connection prompt with a link to the public demo.
 - **My loans:** automatically discover locks created by the connected wallet, search and filter loans, track a public collateral ID, and save a descriptive name. Loan details show the deadline, remaining time, separate network outcomes, repayment review, and transaction history.
 - **New loan:** choose amounts, check balance and borrowing limits, review actual contract terms, acknowledge the lock, then approve and lock through separate wallet confirmations. A successful lock opens its tracking view.
 - **Activity & history:** confirmed contract events on both networks with search, network/type/date filters, pagination, CSV export, and transaction links.
+- **Public demo:** a read-only walkthrough of the recorded loan, with a collateral summary, chronological transaction timeline, recovery explanation, and expandable record details. It remains separate from personal loans and balances.
 - **Safety & contracts:** a plain-language explanation of custody and the relay dependency, a six-contract directory, and inspectable public rejection evidence.
 
 Repayment confirmation and collateral return are separate statuses. Likewise, liquidation and treasury recovery remain separate until the vault confirms the final outcome. Closing a modal never cancels a pending wallet transaction.

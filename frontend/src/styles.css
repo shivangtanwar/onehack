@@ -4884,54 +4884,7 @@ svg {
   }
 }
 
-.public-demo-card {
-  padding: 32px;
-}
-.public-demo-card > p {
-  color: #52635b;
-  line-height: 1.7;
-}
-.public-demo-card .detail-title {
-  margin-top: 16px;
-}
-.public-demo-card code {
-  overflow-wrap: anywhere;
-}
-.public-demo-links {
-  display: grid;
-  gap: 10px;
-}
-.public-demo-links a {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
-  border: 1px solid var(--line, #dce5df);
-  border-radius: 12px;
-  color: #166c50;
-}
-.public-demo-links small {
-  display: block;
-  margin-top: 4px;
-  color: #52635b;
-}
 @media (max-width: 600px) {
-  .public-demo-card {
-    padding: 20px;
-  }
-  .public-demo-card .detail-title {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .public-demo-card .detail-list > div {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .public-demo-card .detail-list dd {
-    text-align: left;
-  }
   .empty-state .button-row {
     flex-direction: column;
   }

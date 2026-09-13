@@ -300,7 +300,9 @@ export default function App() {
           {view === "history" && lending.account && (
             <History lending={lending} onSelect={setSelectedId} />
           )}
-          {view === "demo" && <PublicDemo />}
+          {view === "demo" && (
+            <PublicDemo onSafety={() => navigate("safety")} onCopy={lending.copy} />
+          )}
           {view === "safety" && <Safety onCopy={lending.copy} />}
           <footer className="site-footer">
             <span>
