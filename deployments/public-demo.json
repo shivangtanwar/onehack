@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-09-11T00:42:40.951Z",
+  "networks": {
+    "chainA": {
+      "name": "Ethereum Sepolia",
+      "chainId": 11155111
+    },
+    "chainB": {
+      "name": "Base Sepolia",
+      "chainId": 84532
+    }
+  },
+  "contracts": {
+    "collateralToken": "0xF11dfC764Ac5526E7D690183fAEFDFfF0DC74868",
+    "vault": "0xd5b4a096de2d668Db01eab08D76c11a563b38Bf3",
+    "messengerA": "0x3BA4CADeD1F5A98e5A88728e9CF4218091A754d3",
+    "loanToken": "0x4D1aE7eBcfE1bEdc3c5aFb592871d8B3ec76bA52",
+    "pool": "0x3d38c71541ED82c313EBEBFdAb20a0CDEbb76770",
+    "messengerB": "0xF11dfC764Ac5526E7D690183fAEFDFfF0DC74868"
+  },
+  "confirmations": {
+    "sepolia": 12,
+    "baseSepolia": 12
+  },
+  "collateralId": "0xd40b05337194c03bcf85e959c86eac9c0a0255fd751def71b53e7a65826528b6",
+  "loanId": "2",
+  "transactions": {
+    "approval": "0x4e237c80e31ff264b20c4380c4d58b50bcfe282bc01abeee9ee7a4b2adf233fe",
+    "lock": "0x7ea3e7352ca356fa8f715cdf23ed6585c96ed02aa74e1e0f140b239440cb6090",
+    "issue": "0x9fa42a452c2d371ae880c9c39ab5a7629445db7c3785ed02ade67de759b5e616",
+    "pledgeAcknowledgement": "0x2edebe1a221c960551fddf567831c22731fc2f956baa6f6d20d246d770df54d6",
+    "exactReplay": {
+      "hash": "0xd5abeb93631fb13cdd29b63e0d2ac3b92f23cac2146206269a61ba3d57ff516c",
+      "status": 0,
+      "error": "MessageAlreadyProcessed"
+    },
+    "doublePledge": {
+      "hash": "0x07ec6d07d324ec857cfa284bfe11e1ed92cff8abc53db9dc35789184ccd89907",
+      "status": 0,
+      "error": "CollateralAlreadyUsed"
+    },
+    "staleProof": {
+      "hash": "0x1c9859b14c8ce1e7de3310a582a025f8e6376321495972db6fe1dbd2983c30ce",
+      "status": 0,
+      "error": "MessageExpired"
+    },
+    "markDefaulted": "0x26fae11576e73695059437ea6df552ae357930cce4754fff534665689dc7340e",
+    "liquidate": "0x6817b7392558209392e203bb6f366ff38eefa9a1f4e2b6668b1084439f2ce6aa",
+    "recovery": "0x77d85fa8c65c17490ac2ab5e99f8d47df7af720194cbd01d20c24d762d2221fe"
+  },
+  "messageIds": {
+    "lock": "0x56ceee1c951bf873dede8f3bae20e359e72af02c91d06face9e8959e4bcc95be",
+    "pledgeAcknowledgement": "0xf95173bb663c5f528f3d1d96d404016cc0a81aee98a10d42fc118556a57736eb",
+    "recovery": "0xec2656896c4badc3132c7fc79bbafe7994b7a3ebcd81dab757f5ae54971ad754"
+  },
+  "finalState": {
+    "collateral": 4,
+    "loan": 4,
+    "vaultCollateral": "0.0",
+    "recoveryRecipient": "0x0Cccb788d45F8B864Faa6DA40916F1A3Fbab712F",
+    "recoveryAmount": "100.0",
+    "borrowerCollateralLoss": "100.0"
+  }
+}

@@ -1,0 +1,50 @@
+# Secrets and local chain state
+.env
+.env.*
+!.env.example
+github_tokens/
+provider_tokens/
+*.key
+*.pem
+
+# Hardhat and Node
+node_modules/
+.xdg/
+.hardhat-config/
+artifacts/
+cache/
+coverage/
+coverage.json
+typechain-types/
+dist/
+*.tsbuildinfo
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/vite.config.js
+frontend/vite.config.d.ts
+deployments/demo-evidence.json
+frontend/public/local-demo-evidence.json
+
+# Local deployment output may contain disposable addresses, never keys
+deployments/local-*.json
+
+# Editor/OS
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Unrelated teammate integration checkouts and private operational state
+token-metrics-aniket/
+updown-io-punya/
+webscraping-ai-chahat/
+zenserp-shivang/
+runtime/
+submission/private/
+
+# Browser verification artifacts
+frontend/test-results/
+frontend/playwright-report/
+frontend/qa/

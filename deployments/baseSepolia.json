@@ -1,0 +1,20 @@
+{
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "deployer": "0xA72E96C5e3397195722017629DB9C325A99b28d3",
+  "attestor": "0x0Cccb788d45F8B864Faa6DA40916F1A3Fbab712F",
+  "contracts": {
+    "loanToken": {
+      "address": "0x4D1aE7eBcfE1bEdc3c5aFb592871d8B3ec76bA52",
+      "transactionHash": "0xb77d481e2f127ed1a691884a266b13aefb87317020a544f9450a6d905079cd75"
+    },
+    "messenger": {
+      "address": "0xF11dfC764Ac5526E7D690183fAEFDFfF0DC74868",
+      "transactionHash": "0xe129ffa669e6ea597f3b0215fcc8b4707d3caad09bc3f71aad82ff3defc05254"
+    },
+    "pool": {
+      "address": "0x3d38c71541ED82c313EBEBFdAb20a0CDEbb76770",
+      "transactionHash": "0x985c3fb892c17e0a99f8004085f34a01a36e4b7f148df30488223af7068bdd3e"
+    }
+  }
+}

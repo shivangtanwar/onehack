@@ -1,0 +1,37 @@
+services:
+  relayer:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.relayer
+    image: onehack-relayer:1.0.0
+    container_name: onehack-relayer
+    restart: unless-stopped
+    init: true
+    user: "${RELAYER_UID:-1000}:${RELAYER_GID:-1000}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=32m,mode=1777"]
+    mem_limit: 384m
+    cpus: 0.5
+    environment:
+      ATTESTOR_KEY_FILE: /run/secrets/attestor
+      RELAYER_STATE_DIR: /state
+      SEPOLIA_RPC_URL: https://ethereum-sepolia-rpc.publicnode.com
+      BASE_SEPOLIA_RPC_URL: https://sepolia.base.org
+      SEPOLIA_CONFIRMATIONS: 12
+      BASE_SEPOLIA_CONFIRMATIONS: 12
+    volumes:
+      - ../runtime/state:/state
+      - ../runtime/attestor:/run/secrets/attestor:ro
+    healthcheck:
+      test: [CMD, node, -e, "const h=require('/state/health.json');process.exit(h.healthy && Date.now()-Date.parse(h.updatedAt)<300000 ? 0 : 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 180s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
